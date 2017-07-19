@@ -23,7 +23,7 @@ Vagrant.configure("2") do |config|
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
   # NOTE: This will enable public access to the opened port
-  config.vm.network "forwarded_port", guest: 5432, host: 5432
+  config.vm.network "forwarded_port", guest: 5432, host: 15432
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine and only allow access
@@ -74,5 +74,10 @@ Vagrant.configure("2") do |config|
     apt-get update
     apt-get install -y postgresql postgresql-contrib
     sudo -u postgres createdb datascience
+    echo "host    all     all       0.0.0.0/0      md5" >> /etc/postgresql/9.5/main/pg_hba.conf
+    sed -i -s "s/#listen_addresses = 'localhost'/listen_addresses = '*'/g" /etc/postgresql/9.5/main/postgresql.conf
+    systemctl restart postgresql
+    sudo -u postgres psql -d datascience -c "CREATE USER datascience WITH PASSWORD 'datascience'"
+    sudo -u postgres psql -d datascience -c "grant all privileges on database datascience to datascience"
   SHELL
 end
